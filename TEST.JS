@@ -52,21 +52,16 @@ $(document).ready(function () {
     var queryParams = getQueryParams();
 
     if (queryParams.section) {
+
       $("#display-div").hide();
 
-      // FIX: Connect IV-CSE-A and IV-CSE-B
-      // buttons with the existing JSON files.
-      var jsonFile = queryParams.section;
-
-      if (queryParams.section === "IV-CSE-A") {
-        jsonFile = "III-CSE-A";
-      } 
-      else if (queryParams.section === "IV-CSE-B") {
-        jsonFile = "III-CSE-B";
-      }
+      // Convert IV section name to the existing III JSON filename
+      var jsonFile = queryParams.section.replace("IV-CSE-", "III-CSE-");
 
       $.getJSON(jsonFile + ".json", function (data) {
+
         data.forEach(function (student, index) {
+
           var studentDiv = `
             <div class="${student["roll-number"]} student P">
                 <p class="att">${svg_check}</p>
@@ -80,42 +75,57 @@ $(document).ready(function () {
             $(".table-data").append($studentElement);
             $studentElement.slideDown();
           }, index * 20);
+
         });
+
       });
 
       $("#button-container").hide();
 
     } else {
+
       $("#select").hide();
       $("#unselect").hide();
       $("#attendance-table").hide();
       $("#copy-button").hide();
       $("#share-button").hide();
+
     }
   
     $(".table-data").on("click", ".student", function (event) {
+
       $(event.currentTarget).toggleClass("A P");
 
       $(this)
         .find(".att")
-        .html($(event.currentTarget).hasClass("A") ? svg_uncheck : svg_check);
+        .html(
+          $(event.currentTarget).hasClass("A")
+            ? svg_uncheck
+            : svg_check
+        );
+
     });
   
     $("#select").click(function () {
+
       $(".A").removeClass("A");
       $(".student").addClass("P");
       $(".P .att").html(svg_check);
+
     });
   
     $("#unselect").click(function () {
+
       $(".P").removeClass("P");
       $(".student").addClass("A");
       $(".A .att").html(svg_uncheck);
+
     });
   
     var date = new Date();
 
     function getDaySuffix(day) {
+
       if (day > 3 && day < 21) return "th";
 
       switch (day % 10) {
@@ -124,19 +134,29 @@ $(document).ready(function () {
         case 3: return "rd";
         default: return "th";
       }
+
     }
   
     function formatDate(date) {
+
       var day = date.getDate();
-      var month = date.toLocaleString("en-GB", { month: "long" });
+
+      var month = date.toLocaleString(
+        "en-GB",
+        { month: "long" }
+      );
+
       var year = date.getFullYear();
 
-      var formattedDate = `${day}${getDaySuffix(day)} ${month} ${year}`;
+      var formattedDate =
+        `${day}${getDaySuffix(day)} ${month} ${year}`;
 
       var hours = date.getHours();
+
       var minutes = date.getMinutes();
 
-      var ampm = hours >= 12 ? "PM" : "AM";
+      var ampm =
+        hours >= 12 ? "PM" : "AM";
 
       hours = hours % 12;
 
@@ -146,13 +166,16 @@ $(document).ready(function () {
         `${hours}:${minutes.toString().padStart(2, "0")} ${ampm}`;
 
       var morningOrAfternoon =
-        date.getHours() < 12 ? "Morning" : "Afternoon";
+        date.getHours() < 12
+          ? "Morning"
+          : "Afternoon";
 
       return {
         formattedDate,
         formattedTime,
         morningOrAfternoon
       };
+
     }
   
     function getAttendese() {
@@ -162,7 +185,10 @@ $(document).ready(function () {
       $(".P").each(function () {
 
         var classtest =
-          $(this).attr("class").split(" ")[0].slice(-2);
+          $(this)
+            .attr("class")
+            .split(" ")[0]
+            .slice(-2);
 
         if (
           $(this)
@@ -170,10 +196,16 @@ $(document).ready(function () {
             .split(" ")[0]
             .substring(0, 2) == 24
         ) {
-          classtest = 'LE-' + classtest;
+
+          classtest =
+            'LE-' + classtest;
+
         }
 
-        selectedRollNumbers.push(classtest);
+        selectedRollNumbers.push(
+          classtest
+        );
+
       });
   
       var unselectedRollNumbers = [];
@@ -181,7 +213,10 @@ $(document).ready(function () {
       $(".A").each(function () {
 
         var classtest =
-          $(this).attr("class").split(" ")[0].slice(-2);
+          $(this)
+            .attr("class")
+            .split(" ")[0]
+            .slice(-2);
 
         if (
           $(this)
@@ -189,16 +224,23 @@ $(document).ready(function () {
             .split(" ")[0]
             .substring(0, 2) == 24
         ) {
-          classtest = 'LE-' + classtest;
+
+          classtest =
+            'LE-' + classtest;
+
         }
 
-        unselectedRollNumbers.push(classtest);
+        unselectedRollNumbers.push(
+          classtest
+        );
+
       });
   
       return {
         selectedRollNumbers,
         unselectedRollNumbers
       };
+
     }
   
     function generateTextToCopy() {
@@ -216,8 +258,7 @@ $(document).ready(function () {
         total === 0
           ? 0
           : (
-              (selectedRollNumbers.length / total) *
-              100
+              (selectedRollNumbers.length / total) * 100
             ).toFixed(2);
   
       var {
@@ -233,11 +274,13 @@ ${selectedRollNumbers.join(", ")}.
 
 Absent (${unselectedRollNumbers.length}):
 ${unselectedRollNumbers.join(", ")}.`;
+
     }
   
     $("#copy-button").click(function () {
 
-      var textToCopy = generateTextToCopy();
+      var textToCopy =
+        generateTextToCopy();
   
       var existingData =
         getCookie("attendanceData");
@@ -258,42 +301,58 @@ ${unselectedRollNumbers.join(", ")}.`;
   
       navigator.clipboard
         .writeText(textToCopy)
-
         .then(function () {
-          alert("Copied roll numbers to clipboard!");
+
+          alert(
+            "Copied roll numbers to clipboard!"
+          );
+
         })
-
         .catch(function (err) {
-          console.error("Failed to copy: ", err);
+
+          console.error(
+            "Failed to copy: ",
+            err
+          );
+
         });
+
     });
   
-    $("#share-button").on("click", function () {
+    $("#share-button").on(
+      "click",
+      function () {
 
-      var textToCopy = generateTextToCopy();
+        var textToCopy =
+          generateTextToCopy();
 
-      var whatsappURL =
-        "https://wa.me/?text=" +
-        encodeURIComponent(textToCopy);
+        var whatsappURL =
+          "https://wa.me/?text=" +
+          encodeURIComponent(textToCopy);
   
-      var existingData =
-        getCookie("attendanceData");
+        var existingData =
+          getCookie("attendanceData");
 
-      var updatedData =
-        existingData
-          ? existingData + "\n\n" + textToCopy
-          : textToCopy;
+        var updatedData =
+          existingData
+            ? existingData + "\n\n" + textToCopy
+            : textToCopy;
 
-      document.cookie =
-        "attendanceData=" +
-        encodeURIComponent(updatedData) +
-        "; path=/";
+        document.cookie =
+          "attendanceData=" +
+          encodeURIComponent(updatedData) +
+          "; path=/";
   
-      $("#display-div").html(
-        updatedData.replace(/\n/g, '<br>')
-      );
+        $("#display-div").html(
+          updatedData.replace(/\n/g, '<br>')
+        );
 
-      window.open(whatsappURL, "_blank");
-    });
+        window.open(
+          whatsappURL,
+          "_blank"
+        );
+
+      }
+    );
   
 });
