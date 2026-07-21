@@ -1,34 +1,22 @@
 $(document).ready(function () {
 
   function getCookie(name) {
-
     let value = `; ${document.cookie}`;
-
     let parts = value.split(`; ${name}=`);
 
     if (parts.length === 2) {
-
       return decodeURIComponent(
         parts.pop().split(";").shift()
       );
-
     }
-
   }
 
 
   var cookieData = getCookie("attendanceData");
 
-
   if (cookieData) {
-
-    cookieData = cookieData.replace(
-      /\n/g,
-      "<br>"
-    );
-
+    cookieData = cookieData.replace(/\n/g, "<br>");
     $("#display-div").html(cookieData);
-
   }
 
 
@@ -36,15 +24,10 @@ $(document).ready(function () {
 
     var $displayDiv = $("#display-div");
 
-
     if ($displayDiv.is(":visible")) {
-
       $displayDiv.slideUp();
-
     } else {
-
       $displayDiv.slideDown();
-
     }
 
   });
@@ -57,16 +40,11 @@ $(document).ready(function () {
     var searchParams =
       new URLSearchParams(window.location.search);
 
-
     searchParams.forEach(function (value, key) {
-
       params[key] = value;
-
     });
 
-
     return params;
-
   }
 
 
@@ -85,24 +63,39 @@ $(document).ready(function () {
   function capitalizeWords(str) {
 
     if (!str) {
-
       return "";
-
     }
-
 
     return str
       .toLowerCase()
       .replace(/\b\w/g, function (char) {
-
         return char.toUpperCase();
-
       });
-
   }
 
 
   var queryParams = getQueryParams();
+
+
+  /*
+    EXACT SECTION → JSON FILE MAPPING
+  */
+
+  var jsonFileMap = {
+
+    "IV-CSE-A": "III-CSE-A.json",
+
+    "IV-CSE-B": "III-CSE-B.json",
+
+    "IV-CSE-C": "III-CSE-C.json",
+
+    "IV-CSE-D": "III-CSE-D.json",
+
+    "IV-CSE-E": "III-CSE-E.json",
+
+    "IV-CSE-F": "III-CSE-F.json"
+
+  };
 
 
   if (queryParams.section) {
@@ -110,99 +103,86 @@ $(document).ready(function () {
     $("#display-div").hide();
 
 
-    /*
-      Website sections:
-
-      IV-CSE-A
-      IV-CSE-B
-      IV-CSE-C
-      IV-CSE-D
-      IV-CSE-E
-      IV-CSE-F
-
-      Existing JSON files:
-
-      III-CSE-A.json
-      III-CSE-B.json
-      III-CSE-C.json
-      III-CSE-D.json
-      III-CSE-E.json
-      III-CSE-F.json
-    */
-
-
     var jsonFile =
-      queryParams.section.replace(
-        "IV-CSE-",
-        "III-CSE-"
-      );
+      jsonFileMap[queryParams.section];
 
 
-    $.getJSON(
-      "./" + jsonFile + ".json"
-    )
-
-
-    .done(function (data) {
-
-      $(".table-data").empty();
-
-
-      data.forEach(function (student, index) {
-
-
-        var studentDiv = `
-
-          <div class="${student["roll-number"]} student P">
-
-            <p class="att">
-              ${svg_check}
-            </p>
-
-            <p>
-              ${student["roll-number"]}
-            </p>
-
-            <p>
-              ${capitalizeWords(student.name)}
-            </p>
-
-          </div>
-
-        `;
-
-
-        var $studentElement =
-          $(studentDiv).hide();
-
-
-        setTimeout(function () {
-
-          $(".table-data")
-            .append($studentElement);
-
-
-          $studentElement
-            .slideDown();
-
-        }, index * 20);
-
-
-      });
-
-
-    })
-
-
-    .fail(function () {
+    if (!jsonFile) {
 
       console.error(
-        "Could not load JSON file: " +
-        jsonFile +
-        ".json"
+        "No JSON file found for section: " +
+        queryParams.section
       );
 
-    });
+      return;
+    }
+
+
+    $.getJSON("./" + jsonFile)
+
+      .done(function (data) {
+
+        $(".table-data").empty();
+
+
+        data.forEach(function (student, index) {
+
+
+          var studentDiv = `
+            <div class="${student["roll-number"]} student P">
+
+              <p class="att">
+                ${svg_check}
+              </p>
+
+              <p>
+                ${student["roll-number"]}
+              </p>
+
+              <p>
+                ${capitalizeWords(student.name)}
+              </p>
+
+            </div>
+          `;
+
+
+          var $studentElement =
+            $(studentDiv).hide();
+
+
+          setTimeout(function () {
+
+            $(".table-data")
+              .append($studentElement);
+
+            $studentElement
+              .slideDown();
+
+          }, index * 20);
+
+
+        });
+
+
+      })
+
+
+      .fail(function (jqxhr, textStatus, error) {
+
+        console.error(
+          "Failed to load JSON file: " +
+          jsonFile
+        );
+
+        console.error(
+          "Error: " +
+          textStatus +
+          " " +
+          error
+        );
+
+      });
 
 
     $("#button-container").hide();
@@ -230,7 +210,6 @@ $(document).ready(function () {
     ".student",
     function (event) {
 
-
       $(event.currentTarget)
         .toggleClass("A P");
 
@@ -247,7 +226,6 @@ $(document).ready(function () {
             : svg_check
 
         );
-
 
     }
   );
@@ -281,35 +259,25 @@ $(document).ready(function () {
   function getDaySuffix(day) {
 
     if (day > 3 && day < 21) {
-
       return "th";
-
     }
 
 
     switch (day % 10) {
 
       case 1:
-
         return "st";
 
-
       case 2:
-
         return "nd";
 
-
       case 3:
-
         return "rd";
 
-
       default:
-
         return "th";
 
     }
-
   }
 
 
@@ -355,9 +323,7 @@ $(document).ready(function () {
 
 
     if (hours === 0) {
-
       hours = 12;
-
     }
 
 
@@ -382,20 +348,18 @@ $(document).ready(function () {
       morningOrAfternoon
 
     };
-
   }
 
 
   /*
-    Attendance output numbering:
+    ATTENDANCE NUMBER FORMAT
 
-    Regular students:
-    01, 02, 03, 04...
+    Regular:
+    01, 02, 03...
 
     Lateral Entry:
     LE-01, LE-02, LE-03...
   */
-
 
   function getAttendese() {
 
@@ -420,6 +384,11 @@ $(document).ready(function () {
 
       var displayNumber;
 
+
+      /*
+        Student roll number starting with 24
+        is treated as lateral entry.
+      */
 
       if (
         rollNumber.substring(0, 2) === "24"
@@ -486,7 +455,6 @@ $(document).ready(function () {
       unselectedRollNumbers
 
     };
-
   }
 
 
@@ -580,33 +548,24 @@ ${unselectedRollNumbers.join(", ")}.`;
 
 
     navigator.clipboard
-      .writeText(
-        textToCopy
-      )
-
+      .writeText(textToCopy)
 
       .then(function () {
-
 
         alert(
           "Copied roll numbers to clipboard!"
         );
 
-
       })
 
-
       .catch(function (err) {
-
 
         console.error(
           "Failed to copy: ",
           err
         );
 
-
       });
-
 
   });
 
@@ -666,9 +625,7 @@ ${unselectedRollNumbers.join(", ")}.`;
         "_blank"
       );
 
-
     }
   );
-
 
 });
