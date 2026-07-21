@@ -1,88 +1,51 @@
 $(document).ready(function () {
 
   function getCookie(name) {
-
     let value = `; ${document.cookie}`;
-
     let parts = value.split(`; ${name}=`);
 
     if (parts.length === 2) {
-
       return decodeURIComponent(
         parts.pop().split(";").shift()
       );
-
     }
-
   }
 
 
   var cookieData = getCookie("attendanceData");
 
-
   if (cookieData) {
-
-    cookieData = cookieData.replace(
-      /\n/g,
-      "<br>"
-    );
-
+    cookieData = cookieData.replace(/\n/g, "<br>");
     $("#display-div").html(cookieData);
-
   }
-
 
 
   $("#toggle-button").click(function () {
 
     var $displayDiv = $("#display-div");
 
-
     if ($displayDiv.is(":visible")) {
-
       $displayDiv.slideUp();
-
-    }
-
-    else {
-
+    } else {
       $displayDiv.slideDown();
-
     }
 
   });
-
 
 
   function getQueryParams() {
 
     var params = {};
 
+    var searchParams =
+      new URLSearchParams(window.location.search);
 
-    window.location.search
-      .substring(1)
-      .split("&")
-      .forEach(function (pair) {
-
-        if (!pair) return;
-
-
-        var keyValue = pair.split("=");
-
-
-        params[
-          decodeURIComponent(keyValue[0])
-        ] = decodeURIComponent(
-          keyValue[1] || ""
-        );
-
-      });
-
+    searchParams.forEach(function (value, key) {
+      params[key] = value;
+    });
 
     return params;
-
   }
-
 
 
   var svg_check = `
@@ -91,108 +54,64 @@ $(document).ready(function () {
 </svg>`;
 
 
-
   var svg_uncheck = `
 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2ZM9.87874 8.46443C9.48821 8.07391 8.85505 8.07391 8.46452 8.46443C8.10404 8.82492 8.07631 9.39215 8.38133 9.78443L8.46452 9.87864L10.5858 11.9999L8.46443 14.1213C8.07391 14.5118 8.07391 15.145 8.46443 15.5355C8.82492 15.896 9.39215 15.9237 9.78443 15.6187L9.87864 15.5355L12 13.4141L14.1214 15.5355C14.5119 15.926 15.1451 15.926 15.5356 15.5355C15.8961 15.175 15.9238 14.6078 15.6188 14.2155L15.5356 14.1213L13.4142 11.9999L15.5355 9.87862C15.926 9.4881 15.926 8.85493 15.5355 8.46441C15.175 8.10392 14.6078 8.07619 14.2155 8.38122L14.1213 8.46441L12 10.5857L9.87874 8.46443Z" fill="#FF4D4D"/>
+<path d="M12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C6.47715 2 2 6.47715 2 12ZM9.87874 8.46443C9.48821 8.07391 8.85505 8.07391 8.46452 8.46443C8.10404 8.82492 8.07631 9.39215 8.38133 9.78443L8.46452 9.87864L10.5858 11.9999L8.46443 14.1213C8.07391 14.5118 8.07391 15.145 8.46443 15.5355C8.82492 15.896 9.39215 15.9237 9.78443 15.6187L9.87864 15.5355L12 13.4141L14.1214 15.5355C14.5119 15.926 15.1451 15.926 15.5356 15.5355C15.8961 15.175 15.9238 14.6078 15.6188 14.2155L15.5356 14.1213L13.4142 11.9999L15.5355 9.87862C15.926 9.4881 15.926 8.85493 15.5355 8.46441C15.175 8.10392 14.6078 8.07619 14.2155 8.38122L14.1213 8.46441L12 10.5857L9.87874 8.46443Z" fill="#FF4D4D"/>
 </svg>`;
-
 
 
   function capitalizeWords(str) {
 
+    if (!str) {
+      return "";
+    }
+
     return str
       .toLowerCase()
       .replace(/\b\w/g, function (char) {
-
         return char.toUpperCase();
-
       });
 
   }
 
 
-
   var queryParams = getQueryParams();
-
 
 
   if (queryParams.section) {
 
     $("#display-div").hide();
 
-
     var jsonFile = queryParams.section;
 
 
-
-    /*
-      A and B are displayed as IV year.
-
-      Existing JSON files are:
-
-      III-CSE-A.json
-      III-CSE-B.json
-    */
-
+    // A and B are displayed as IV year,
+    // but their JSON filenames are still III-CSE-A/B.
 
     if (queryParams.section === "IV-CSE-A") {
-
       jsonFile = "III-CSE-A";
-
     }
-
 
     else if (queryParams.section === "IV-CSE-B") {
-
       jsonFile = "III-CSE-B";
-
     }
 
 
+    $.getJSON("./" + jsonFile + ".json")
 
-    /*
-      C, D, E and F directly use:
-
-      III-CSE-C.json
-      III-CSE-D.json
-      III-CSE-E.json
-      III-CSE-F.json
-    */
-
-
-    $.getJSON(
-      "./" + jsonFile + ".json",
-
-      function (data) {
-
+      .done(function (data) {
 
         $(".table-data").empty();
 
-
         data.forEach(function (student, index) {
 
-
           var studentDiv = `
-
             <div class="${student["roll-number"]} student P">
-
-              <p class="att">
-                ${svg_check}
-              </p>
-
-              <p>
-                ${student["roll-number"]}
-              </p>
-
-              <p>
-                ${capitalizeWords(student.name)}
-              </p>
-
+              <p class="att">${svg_check}</p>
+              <p>${student["roll-number"]}</p>
+              <p>${capitalizeWords(student.name)}</p>
             </div>
-
           `;
-
 
           var $studentElement =
             $(studentDiv).hide();
@@ -203,49 +122,38 @@ $(document).ready(function () {
             $(".table-data")
               .append($studentElement);
 
-
-            $studentElement
-              .slideDown();
+            $studentElement.slideDown();
 
           }, index * 20);
 
-
         });
 
+      })
 
-      }
+      .fail(function () {
 
-    ).fail(function () {
+        console.error(
+          "Could not load: " +
+          jsonFile +
+          ".json"
+        );
 
-      console.error(
-        "JSON file could not be loaded: " +
-        jsonFile +
-        ".json"
-      );
-
-    });
-
+      });
 
 
     $("#button-container").hide();
 
   }
 
-
   else {
 
     $("#select").hide();
-
     $("#unselect").hide();
-
     $("#attendance-table").hide();
-
     $("#copy-button").hide();
-
     $("#share-button").hide();
 
   }
-
 
 
   $(".table-data").on(
@@ -253,29 +161,20 @@ $(document).ready(function () {
     ".student",
     function (event) {
 
-
       $(event.currentTarget)
         .toggleClass("A P");
-
 
       $(this)
         .find(".att")
         .html(
-
           $(event.currentTarget)
             .hasClass("A")
-
             ? svg_uncheck
-
             : svg_check
-
         );
 
-
     }
-
   );
-
 
 
   $("#select").click(function () {
@@ -289,7 +188,6 @@ $(document).ready(function () {
   });
 
 
-
   $("#unselect").click(function () {
 
     $(".P").removeClass("P");
@@ -301,19 +199,14 @@ $(document).ready(function () {
   });
 
 
-
   var date = new Date();
-
 
 
   function getDaySuffix(day) {
 
     if (day > 3 && day < 21) {
-
       return "th";
-
     }
-
 
     switch (day % 10) {
 
@@ -328,53 +221,47 @@ $(document).ready(function () {
 
       default:
         return "th";
-
     }
 
   }
-
 
 
   function formatDate(date) {
 
     var day = date.getDate();
 
+    var month =
+      date.toLocaleString(
+        "en-GB",
+        {
+          month: "long"
+        }
+      );
 
-    var month = date.toLocaleString(
-      "en-GB",
-      {
-        month: "long"
-      }
-    );
-
-
-    var year = date.getFullYear();
+    var year =
+      date.getFullYear();
 
 
     var formattedDate =
       `${day}${getDaySuffix(day)} ${month} ${year}`;
 
 
+    var hours =
+      date.getHours();
 
-    var hours = date.getHours();
-
-
-    var minutes = date.getMinutes();
-
+    var minutes =
+      date.getMinutes();
 
     var ampm =
       hours >= 12
         ? "PM"
         : "AM";
 
-
-    hours = hours % 12;
-
+    hours =
+      hours % 12;
 
     if (hours === 0) {
-
       hours = 12;
-
     }
 
 
@@ -391,48 +278,26 @@ $(document).ready(function () {
 
 
     return {
-
       formattedDate,
-
       formattedTime,
-
       morningOrAfternoon
-
     };
 
   }
 
 
-
-  /*
-    ATTENDANCE NUMBERING
-
-    This gives every section:
-
-    01, 02, 03, 04...
-
-    Lateral Entry:
-
-    LE-01, LE-02, LE-03...
-  */
-
-
   function getAttendese() {
-
 
     var selectedRollNumbers = [];
 
     var unselectedRollNumbers = [];
-
 
     var regularNumber = 0;
 
     var lateralNumber = 0;
 
 
-
     $(".student").each(function () {
-
 
       var rollNumber =
         $(this)
@@ -443,14 +308,12 @@ $(document).ready(function () {
       var displayNumber;
 
 
-
+      // Lateral Entry
       if (
         rollNumber.substring(0, 2) === "24"
       ) {
 
-
         lateralNumber++;
-
 
         displayNumber =
           "LE-" +
@@ -458,72 +321,59 @@ $(document).ready(function () {
             .toString()
             .padStart(2, "0");
 
-
       }
 
-
+      // Regular Student
       else {
 
-
         regularNumber++;
-
 
         displayNumber =
           regularNumber
             .toString()
             .padStart(2, "0");
 
-
       }
 
 
-
       if ($(this).hasClass("P")) {
-
 
         selectedRollNumbers.push(
           displayNumber
         );
 
-
       }
 
-
       else if ($(this).hasClass("A")) {
-
 
         unselectedRollNumbers.push(
           displayNumber
         );
 
-
       }
-
 
     });
 
 
-
     return {
-
       selectedRollNumbers,
-
       unselectedRollNumbers
-
     };
 
   }
 
 
-
   function generateTextToCopy() {
 
+    var attendance =
+      getAttendese();
 
-    var {
-      selectedRollNumbers,
-      unselectedRollNumbers
-    } = getAttendese();
 
+    var selectedRollNumbers =
+      attendance.selectedRollNumbers;
+
+    var unselectedRollNumbers =
+      attendance.unselectedRollNumbers;
 
 
     var total =
@@ -531,32 +381,25 @@ $(document).ready(function () {
       unselectedRollNumbers.length;
 
 
-
     var percentage =
       total === 0
-
         ? 0
-
         : (
             (
               selectedRollNumbers.length /
               total
-            ) * 100
+            ) *
+            100
           ).toFixed(2);
 
 
-
-    var {
-      formattedDate,
-      formattedTime,
-      morningOrAfternoon
-    } = formatDate(date);
+    var formatted =
+      formatDate(date);
 
 
-
-    return `${getQueryParams().section.replace(/-/g, " ")} Attendance ${formattedDate} 
-${morningOrAfternoon} ${formattedTime} 
-Present (${selectedRollNumbers.length}/${total}) - ${percentage}%: 
+    return `${queryParams.section.replace(/-/g, " ")} Attendance ${formatted.formattedDate}
+${formatted.morningOrAfternoon} ${formatted.formattedTime}
+Present (${selectedRollNumbers.length}/${total}) - ${percentage}%:
 ${selectedRollNumbers.join(", ")}.
 
 Absent (${unselectedRollNumbers.length}):
@@ -565,29 +408,22 @@ ${unselectedRollNumbers.join(", ")}.`;
   }
 
 
-
   $("#copy-button").click(function () {
-
 
     var textToCopy =
       generateTextToCopy();
-
 
 
     var existingData =
       getCookie("attendanceData");
 
 
-
     var updatedData =
       existingData
-
         ? existingData +
           "\n\n" +
           textToCopy
-
         : textToCopy;
-
 
 
     document.cookie =
@@ -596,16 +432,12 @@ ${unselectedRollNumbers.join(", ")}.`;
       "; path=/";
 
 
-
     $("#display-div").html(
-
       updatedData.replace(
         /\n/g,
         "<br>"
       )
-
     );
-
 
 
     navigator.clipboard
@@ -628,19 +460,15 @@ ${unselectedRollNumbers.join(", ")}.`;
 
       });
 
-
   });
-
 
 
   $("#share-button").on(
     "click",
     function () {
 
-
       var textToCopy =
         generateTextToCopy();
-
 
 
       var whatsappURL =
@@ -650,23 +478,18 @@ ${unselectedRollNumbers.join(", ")}.`;
         );
 
 
-
       var existingData =
         getCookie(
           "attendanceData"
         );
 
 
-
       var updatedData =
         existingData
-
           ? existingData +
             "\n\n" +
             textToCopy
-
           : textToCopy;
-
 
 
       document.cookie =
@@ -677,16 +500,12 @@ ${unselectedRollNumbers.join(", ")}.`;
         "; path=/";
 
 
-
       $("#display-div").html(
-
         updatedData.replace(
           /\n/g,
           "<br>"
         )
-
       );
-
 
 
       window.open(
@@ -694,10 +513,7 @@ ${unselectedRollNumbers.join(", ")}.`;
         "_blank"
       );
 
-
     }
-
   );
-
 
 });
