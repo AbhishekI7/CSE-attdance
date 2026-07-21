@@ -1,93 +1,87 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Class Attendance</title>
+function getAttendese() {
 
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="./home1.css">
-    <link rel="shortcut icon" href="logo.svg" type="image/x-icon">
+  var selectedRollNumbers = [];
+  var unselectedRollNumbers = [];
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script type="module" src="./TEST.JS"></script>
-  </head>
+  $(".student").each(function (index) {
 
-  <body>
+    var rollNumber = $(this).attr("class").split(" ")[0];
 
-    <header>
-      <h1>Welcome to Class Attendance Portal</h1>
-    </header>
+    var displayNumber;
 
-    <a class="home-btn" href="./index.html">HOME</a>
+    // Lateral Entry students
+    if (rollNumber.substring(0, 2) == "24") {
 
-    <div id="button-container">
+      var leIndex = 1;
 
-      <a id="btn-IV-CSE-A" href="?section=IV-CSE-A">IV-CSE-A</a>
+      $(".student").each(function (i) {
 
-      <a id="btn-IV-CSE-B" href="?section=IV-CSE-B">IV-CSE-B</a>
+        if (i >= index) {
+          return false;
+        }
 
-      <a id="btn-III-CSE-C" href="?section=III-CSE-C">III-CSE-C</a>
+        var previousRoll =
+          $(this).attr("class").split(" ")[0];
 
-      <a id="btn-III-CSE-D" href="?section=III-CSE-D">III-CSE-D</a>
+        if (previousRoll.substring(0, 2) == "24") {
+          leIndex++;
+        }
 
-      <a id="btn-III-CSE-E" href="?section=III-CSE-E">III-CSE-E</a>
+      });
 
-      <a id="btn-III-CSE-F" href="?section=III-CSE-F">III-CSE-F</a>
+      displayNumber =
+        "LE-" +
+        leIndex.toString().padStart(2, "0");
 
-    </div>
+    }
 
-    <button id="select">Select All</button>
+    // Regular students
+    else {
 
-    <button id="unselect">Remove All</button>
+      var regularIndex = 1;
 
-    <div id="attendance-table">
+      $(".student").each(function (i) {
 
-      <div class="table-heading">
+        if (i >= index) {
+          return false;
+        }
 
-        <h3>Attendance</h3>
+        var previousRoll =
+          $(this).attr("class").split(" ")[0];
 
-        <h3>Roll No.</h3>
+        if (previousRoll.substring(0, 2) != "24") {
+          regularIndex++;
+        }
 
-        <h3>Name</h3>
+      });
 
-      </div>
+      displayNumber =
+        regularIndex.toString().padStart(2, "0");
 
-      <div class="table-data">
+    }
 
-        <!--
-        <div class="22Q91A6691 student A">
-          <p class="att"></p>
-          <p>22Q91A6691</p>
-          <p>Harsh RB</p>
-        </div>
 
-        <div class="22Q91A66B5 student A">
-          <p class="att"></p>
-          <p>22Q91A66B5</p>
-          <p>PJ</p>
-        </div>
-        -->
+    if ($(this).hasClass("P")) {
 
-      </div>
+      selectedRollNumbers.push(displayNumber);
 
-    </div>
+    }
 
-    <button id="copy-button">
-      Copy Attendance
-    </button>
+    else if ($(this).hasClass("A")) {
 
-    <button id="share-button">
-      <p class="svg-whatsapp-light"></p>
-      Share On Whatsapp
-    </button>
+      unselectedRollNumbers.push(displayNumber);
 
-    <button id="toggle-button">
-      History
-    </button>
+    }
 
-    <div id="display-div"></div>
+  });
 
-  </body>
-</html>
+
+  return {
+
+    selectedRollNumbers,
+
+    unselectedRollNumbers
+
+  };
+
+}
