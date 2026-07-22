@@ -354,9 +354,11 @@ $(document).ready(function () {
   /*
     ATTENDANCE ROLL NUMBERS
 
-    Uses the actual "roll-number" value from the
-    section's JSON file (stored as the student's
-    first CSS class), instead of a made-up count.
+    Displays the last two characters of the actual
+    "roll-number" from the JSON file (e.g. 23Q91A05C8
+    → C8). Lateral entry students (roll number starts
+    with "24") get an "LE-" prefix (e.g. 24Q95A0512
+    → LE-12).
   */
 
   function getAttendese() {
@@ -375,11 +377,25 @@ $(document).ready(function () {
           .split(" ")[0];
 
 
+      var suffix =
+        rollNumber
+          .slice(-2)
+          .toUpperCase();
+
+
+      var displayNumber =
+        rollNumber.substring(0, 2) === "24"
+
+          ? "LE-" + suffix
+
+          : suffix;
+
+
       if ($(this).hasClass("P")) {
 
 
         selectedRollNumbers.push(
-          rollNumber
+          displayNumber
         );
 
 
@@ -390,7 +406,7 @@ $(document).ready(function () {
 
 
         unselectedRollNumbers.push(
-          rollNumber
+          displayNumber
         );
 
 
