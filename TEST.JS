@@ -352,13 +352,11 @@ $(document).ready(function () {
 
 
   /*
-    ATTENDANCE NUMBER FORMAT
+    ATTENDANCE ROLL NUMBERS
 
-    Regular:
-    01, 02, 03...
-
-    Lateral Entry:
-    LE-01, LE-02, LE-03...
+    Uses the actual "roll-number" value from the
+    section's JSON file (stored as the student's
+    first CSS class), instead of a made-up count.
   */
 
   function getAttendese() {
@@ -366,11 +364,6 @@ $(document).ready(function () {
     var selectedRollNumbers = [];
 
     var unselectedRollNumbers = [];
-
-
-    var regularNumber = 0;
-
-    var lateralNumber = 0;
 
 
     $(".student").each(function () {
@@ -382,52 +375,11 @@ $(document).ready(function () {
           .split(" ")[0];
 
 
-      var displayNumber;
-
-
-      /*
-        Student roll number starting with 24
-        is treated as lateral entry.
-      */
-
-      if (
-        rollNumber.substring(0, 2) === "24"
-      ) {
-
-
-        lateralNumber++;
-
-
-        displayNumber =
-          "LE-" +
-          lateralNumber
-            .toString()
-            .padStart(2, "0");
-
-
-      }
-
-
-      else {
-
-
-        regularNumber++;
-
-
-        displayNumber =
-          regularNumber
-            .toString()
-            .padStart(2, "0");
-
-
-      }
-
-
       if ($(this).hasClass("P")) {
 
 
         selectedRollNumbers.push(
-          displayNumber
+          rollNumber
         );
 
 
@@ -438,7 +390,7 @@ $(document).ready(function () {
 
 
         unselectedRollNumbers.push(
-          displayNumber
+          rollNumber
         );
 
 
